@@ -1,0 +1,57 @@
+import numpy as np
+
+def cosine_similarity(user1, user2, user_ratings):
+    """
+    Calculates cosine similarity between two users based on their movie ratings.
+
+    Args:
+        user1 (str): User ID.
+        user2 (str): User ID.
+        user_ratings (dict): Dictionary where keys are user IDs and values are lists of rated movies.
+
+    Returns:
+        float: Cosine similarity score between the two users.
+    """
+    common_movies = set(user_ratings[user1]) & set(user_ratings[user2])
+    if not common_movies:
+        return 0
+    numerator = sum(user_ratings[user1][movie] * user_ratings[user2][movie] for movie in common_movies)
+    denominator = np.sqrt(sum(pow(user_ratings[user1][movie], 2) for movie in common_movies) * sum(pow(user_ratings[user2][movie], 2) for movie in common_movies))
+    return numerator / denominator
+
+def recommend_movies(user, user_ratings, k=3):
+    """
+    Recommends movies for a user based on collaborative filtering.
+
+    Args:
+        user (str): User ID.
+        user_ratings (dict): Dictionary where keys are user IDs and values are lists of rated movies.
+        k (int, optional): Number of top recommendations to return. Defaults to 3.
+
+    Returns:
+        list: List of top-k recommended movies with their weighted ratings.
+    """
+    # Find most similar users
+    similar_users = sorted(user_ratings, key=lambda u: cosine_similarity(user, u, user_ratings), reverse=True)[:k]
+    # Get recommendations from similar users (weighted by similarity score)
+    recommendations = {}
+    for neighbor in similar_users:
+        for movie, rating in user_ratings[neighbor].items():
+            if movie not in user_ratings[user]:
+                recommendations.setdefault(movie, 0)
+                recommendations[movie] += cosine_similarity(user, neighbor, user_ratings) * rating
+    # Return top-N recommendations with highest weighted ratings
+    return sorted(recommendations.items(), key=lambda item: item[1], reverse=True)[:k]
+
+# Example usage
+user_ratings = {
+    "Alice": {"The Godfather": 5, "Pulp Fiction": 4, "Fight Club": 3},
+    "Bob": {"The Shawshank Redemption": 5, "The Lord of the Rings": 4},
+    "Charlie": {"The Godfather": 5, "The Dark Knight": 4, "Inception": 3}
+}
+
+# Recommend movies for Charlie
+recommendations = recommend_movies("Charlie", user_ratings)
+
+for movie, rating in recommendations:
+    print(f"Recommend {movie} with a weighted rating of {rating:.2f}")

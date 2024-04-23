@@ -1,0 +1,35 @@
+import random
+
+def chatbot():
+    """
+    A simple rule-based chatbot that responds to greetings and basic questions.
+    """
+    # Define a dictionary to store keywords and corresponding responses
+    responses = {
+        "greet": ["Hi there!", "Hello! How can I help you today?"],
+        "goodbye": ["Bye! Have a nice day.", "See you later!"],
+        "time": ["I can't access the current time directly, but you can check your device or ask a web assistant."],
+        "help": ["I can answer basic questions about the store. Try asking about our hours, return policy, or products."],
+    }
+
+    # Get user input
+    while True:
+        user_input = input("You: ")
+        user_input = user_input.lower()  # Convert input to lowercase for easier matching
+
+        # Check for greetings, goodbyes, and keywords
+        if any(word in user_input for word in ["hi", "hello"]):
+            print("Chatbot: " + random.choice(responses["greet"]))
+        elif any(word in user_input for word in ["bye", "quit"]):
+            print("Chatbot: " + random.choice(responses["goodbye"]))
+            break
+        elif "time" in user_input:
+            print("Chatbot: " + responses["time"])
+        elif "help" in user_input:
+            print("Chatbot: " + responses["help"])
+        else:
+            # If no match found, provide a generic response
+            print("Chatbot: Sorry, I don't understand. Try asking about our hours, return policy, or products.")
+
+if __name__ == "__main__":
+    chatbot()
